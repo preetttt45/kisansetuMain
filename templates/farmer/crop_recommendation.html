@@ -1,0 +1,411 @@
+
+{% extends "base.html" %}
+
+{% block title %}Smart Crop Recommendation | KisanSetu AI{% endblock %}
+
+{% block page_heading %}
+    Smart Crop Recommendation
+{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom: 25px;">
+    <h1>Smart Crop Recommendation 🌱</h1>
+
+    <p style="color: #64748b;">
+        Enter your soil and environmental details to discover
+        crops suitable for your agricultural conditions.
+    </p>
+</div>
+
+
+{% if error %}
+
+<div class="card"
+     style="margin-bottom: 22px; border-left: 4px solid #dc3545;">
+
+    <strong style="color: #dc3545;">
+        Something went wrong
+    </strong>
+
+    <p style="margin-top: 8px;">
+        {{ error }}
+    </p>
+
+</div>
+
+{% endif %}
+
+
+{% if feature_ranges %}
+
+<div class="form-card" style="max-width: 850px;">
+
+    <h2>Enter Agricultural Details</h2>
+
+    <p style="color: #64748b; margin-bottom: 24px;">
+        Enter the values from your soil test report and
+        local environmental measurements.
+    </p>
+
+
+    <form method="POST">
+
+        <h3 style="margin-bottom: 18px;">
+            Soil Nutrients
+        </h3>
+
+
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+        ">
+
+            <div class="form-group">
+
+                <label for="N">
+                    Nitrogen (N)
+                </label>
+
+                <input
+                    type="number"
+                    id="N"
+                    name="N"
+                    class="form-control"
+                    step="any"
+                    min="{{ feature_ranges['N']['min'] }}"
+                    max="{{ feature_ranges['N']['max'] }}"
+                    value="{{ form_values.get('N', '') }}"
+                    placeholder="Enter nitrogen value"
+                    required
+                >
+
+                <small style="color: #64748b;">
+                    Dataset range:
+                    {{ "%.2f"|format(feature_ranges['N']['min']) }}
+                    -
+                    {{ "%.2f"|format(feature_ranges['N']['max']) }}
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="P">
+                    Phosphorus (P)
+                </label>
+
+                <input
+                    type="number"
+                    id="P"
+                    name="P"
+                    class="form-control"
+                    step="any"
+                    min="{{ feature_ranges['P']['min'] }}"
+                    max="{{ feature_ranges['P']['max'] }}"
+                    value="{{ form_values.get('P', '') }}"
+                    placeholder="Enter phosphorus value"
+                    required
+                >
+
+                <small style="color: #64748b;">
+                    Dataset range:
+                    {{ "%.2f"|format(feature_ranges['P']['min']) }}
+                    -
+                    {{ "%.2f"|format(feature_ranges['P']['max']) }}
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="K">
+                    Potassium (K)
+                </label>
+
+                <input
+                    type="number"
+                    id="K"
+                    name="K"
+                    class="form-control"
+                    step="any"
+                    min="{{ feature_ranges['K']['min'] }}"
+                    max="{{ feature_ranges['K']['max'] }}"
+                    value="{{ form_values.get('K', '') }}"
+                    placeholder="Enter potassium value"
+                    required
+                >
+
+                <small style="color: #64748b;">
+                    Dataset range:
+                    {{ "%.2f"|format(feature_ranges['K']['min']) }}
+                    -
+                    {{ "%.2f"|format(feature_ranges['K']['max']) }}
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <hr style="
+            border: 0;
+            border-top: 1px solid #e2e8f0;
+            margin: 20px 0;
+        ">
+
+
+        <h3 style="margin-bottom: 18px;">
+            Environmental Conditions
+        </h3>
+
+
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+        ">
+
+            <div class="form-group">
+
+                <label for="temperature">
+                    Temperature (°C)
+                </label>
+
+                <input
+                    type="number"
+                    id="temperature"
+                    name="temperature"
+                    class="form-control"
+                    step="any"
+                    min="{{ feature_ranges['temperature']['min'] }}"
+                    max="{{ feature_ranges['temperature']['max'] }}"
+                    value="{{ form_values.get('temperature', '') }}"
+                    placeholder="Enter temperature"
+                    required
+                >
+
+                <small style="color: #64748b;">
+                    Dataset range:
+                    {{ "%.2f"|format(feature_ranges['temperature']['min']) }}
+                    -
+                    {{ "%.2f"|format(feature_ranges['temperature']['max']) }}
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="humidity">
+                    Humidity (%)
+                </label>
+
+                <input
+                    type="number"
+                    id="humidity"
+                    name="humidity"
+                    class="form-control"
+                    step="any"
+                    min="{{ feature_ranges['humidity']['min'] }}"
+                    max="{{ feature_ranges['humidity']['max'] }}"
+                    value="{{ form_values.get('humidity', '') }}"
+                    placeholder="Enter humidity"
+                    required
+                >
+
+                <small style="color: #64748b;">
+                    Dataset range:
+                    {{ "%.2f"|format(feature_ranges['humidity']['min']) }}
+                    -
+                    {{ "%.2f"|format(feature_ranges['humidity']['max']) }}
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="ph">
+                    Soil pH
+                </label>
+
+                <input
+                    type="number"
+                    id="ph"
+                    name="ph"
+                    class="form-control"
+                    step="any"
+                    min="{{ feature_ranges['ph']['min'] }}"
+                    max="{{ feature_ranges['ph']['max'] }}"
+                    value="{{ form_values.get('ph', '') }}"
+                    placeholder="Enter soil pH"
+                    required
+                >
+
+                <small style="color: #64748b;">
+                    Dataset range:
+                    {{ "%.2f"|format(feature_ranges['ph']['min']) }}
+                    -
+                    {{ "%.2f"|format(feature_ranges['ph']['max']) }}
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="rainfall">
+                    Rainfall (mm)
+                </label>
+
+                <input
+                    type="number"
+                    id="rainfall"
+                    name="rainfall"
+                    class="form-control"
+                    step="any"
+                    min="{{ feature_ranges['rainfall']['min'] }}"
+                    max="{{ feature_ranges['rainfall']['max'] }}"
+                    value="{{ form_values.get('rainfall', '') }}"
+                    placeholder="Enter rainfall"
+                    required
+                >
+
+                <small style="color: #64748b;">
+                    Dataset range:
+                    {{ "%.2f"|format(feature_ranges['rainfall']['min']) }}
+                    -
+                    {{ "%.2f"|format(feature_ranges['rainfall']['max']) }}
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div style="
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        ">
+
+            <button type="submit" class="btn btn-primary">
+                🌱 Recommend Crops
+            </button>
+
+            <a href="{{ url_for('farmer_dashboard') }}"
+               class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endif %}
+
+
+{% if recommendations %}
+
+<div style="margin-top: 30px;">
+
+    <h2>Recommended Crops 🌾</h2>
+
+    <p style="color: #64748b; margin-bottom: 20px;">
+        Based on the agricultural conditions you entered,
+        here are the top three model recommendations.
+    </p>
+
+
+    <div class="card-grid">
+
+        {% for item in recommendations %}
+
+        <div class="card">
+
+            <div class="stat-icon">🌱</div>
+
+            <p style="color: #64748b;">
+                Recommendation {{ loop.index }}
+            </p>
+
+            <h2 style="
+                text-transform: capitalize;
+                margin: 12px 0;
+            ">
+                {{ item.crop }}
+            </h2>
+
+            <div style="
+                font-size: 26px;
+                font-weight: 750;
+                color: #198754;
+            ">
+                {{ item.score }}%
+            </div>
+
+            <p style="color: #64748b; font-size: 13px;">
+                Random Forest model score
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <div class="card" style="margin-top: 20px;">
+
+        <h3>Model Information</h3>
+
+        <p>
+            Algorithm:
+            <strong>Random Forest Classifier</strong>
+        </p>
+
+        <p>
+            Held-out dataset test accuracy:
+            <strong>{{ model_accuracy }}%</strong>
+        </p>
+
+        <p style="color: #64748b; font-size: 13px; margin-top: 12px;">
+            The score represents the proportion of the model's
+            tree votes for a crop. It is not a guarantee of
+            crop suitability or agricultural success.
+        </p>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<div class="card" style="margin-top: 25px;">
+
+    <h3>Important Information</h3>
+
+    <p style="color: #64748b;">
+        Recommendations are based on a publicly available
+        crop recommendation dataset. Actual crop suitability
+        also depends on local soil conditions, season,
+        irrigation, seed variety, pests and other factors.
+    </p>
+
+    <p style="color: #64748b;">
+        Use values from a soil test report wherever possible.
+        Consult an agricultural expert before making
+        cultivation decisions.
+    </p>
+
+</div>
+
+{% endblock %}

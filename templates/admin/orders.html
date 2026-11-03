@@ -1,0 +1,114 @@
+
+{% extends "base.html" %}
+
+{% block title %}Order Management | KisanSetu AI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Order Management</h1>
+    <p>Monitor orders and manage agricultural deliveries.</p>
+</div>
+
+<div class="table-card">
+    <h2>Total Orders ({{ orders|length }})</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Crop</th>
+                <th>Buyer</th>
+                <th>Farmer</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>Order Status</th>
+                <th>Delivery Method</th>
+                <th>Address</th>
+                <th>Transport</th>
+                <th>Vehicle Number</th>
+                <th>Driver Contact</th>
+                <th>Delivery Status</th>
+                <th>Manage Transport</th>
+                <th>Order Date</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order["id"] }}</td>
+                <td>{{ order["crop_name"] }}</td>
+                <td>{{ order["buyer_name"] }}</td>
+                <td>{{ order["farmer_name"] }}</td>
+                <td>{{ order["quantity"] }}</td>
+                <td>₹{{ order["total_price"] }}</td>
+                <td>{{ order["status"] }}</td>
+                <td>{{ order["delivery_method"] or "N/A" }}</td>
+                <td>{{ order["delivery_address"] or "N/A" }}</td>
+                <td>{{ order["transport_name"] or "Not Assigned" }}</td>
+                <td>{{ order["vehicle_number"] or "N/A" }}</td>
+                <td>{{ order["driver_contact"] or "N/A" }}</td>
+                <td>{{ order["delivery_status"] or "N/A" }}</td>
+                
+<td>
+    {% if order["delivery_method"] == "Delivery" %}
+
+    <form method="POST"
+          action="{{ url_for('update_logistics', order_id=order['id']) }}">
+
+        <input type="text"
+               name="transport_name"
+               placeholder="Transport Name"
+               value="{{ order['transport_name'] or '' }}"
+               required>
+
+        <input type="text"
+               name="vehicle_number"
+               placeholder="Vehicle Number"
+               value="{{ order['vehicle_number'] or '' }}"
+               required>
+
+        <input type="text"
+               name="driver_contact"
+               placeholder="Driver Contact"
+               value="{{ order['driver_contact'] or '' }}"
+               required>
+
+        <select name="delivery_status" required>
+            <option value="Assigned"
+                {% if order["delivery_status"] == "Assigned" %}selected{% endif %}>
+                Assigned
+            </option>
+
+            <option value="In Transit"
+                {% if order["delivery_status"] == "In Transit" %}selected{% endif %}>
+                In Transit
+            </option>
+
+            <option value="Delivered"
+                {% if order["delivery_status"] == "Delivered" %}selected{% endif %}>
+                Delivered
+            </option>
+        </select>
+
+        <button type="submit">Update Transport</button>
+    </form>
+
+    {% elif order["delivery_method"] == "Self Pickup" %}
+        Not Required
+    {% else %}
+        N/A
+    {% endif %}
+</td>
+
+                <td>{{ order["created_at"] }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="15">No orders found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
