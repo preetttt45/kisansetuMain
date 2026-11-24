@@ -29,7 +29,7 @@
                     <a href="{{ url_for('my_products') }}">📦 My Products</a>
                     <a href="{{ url_for('farmer_orders') }}">🧾 Orders</a>
                     <a href="{{ url_for('crop_recommendation') }}">🌱 Smart Crop Recommendation</a>
-
+                    <a href="{{ url_for('market_insight') }}">📈 Market Insight</a>
                 {% elif session.get('role') == 'buyer' %}
                     <a href="{{ url_for('buyer_dashboard') }}">🏠 Dashboard</a>
                     <a href="{{ url_for('marketplace') }}">🛒 Marketplace</a>

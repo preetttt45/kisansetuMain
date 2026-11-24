@@ -3,6 +3,12 @@ from database.database import init_db, get_db_connection
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from crop_recommender import get_feature_ranges, recommend_crops
+from market_prices import (
+    fetch_mandi_prices,
+    build_insight,
+    marketplace_average,
+)
+
 import math
 
 app = Flask(__name__)
@@ -238,6 +244,46 @@ def crop_recommendation():
         form_values=form_values,
         model_accuracy=model_accuracy,
         error=error
+    )
+
+@app.route("/farmer/market-insight")
+def market_insight():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "farmer":
+        return "Access denied!", 403
+
+    commodity = request.args.get("commodity", "").strip().title()
+    state = request.args.get("state", "").strip().title()
+
+    insight = None
+    local = None
+    error = None
+
+    if commodity:
+        try:
+            rows = fetch_mandi_prices(commodity, state or None)
+            insight = build_insight(rows)
+
+            if insight is None:
+                error = "No mandi prices found. Check the crop and state spelling."
+
+            local = marketplace_average(commodity)
+
+        except Exception:
+            # Log the real error in the terminal, show a safe message
+            app.logger.exception("Market price lookup failed")
+            error = "Could not load market prices right now. Please try again later."
+
+    return render_template(
+        "farmer/market_insight.html",
+        commodity=commodity,
+        state=state,
+        insight=insight,
+        local=local,
+        error=error,
     )
 
 
