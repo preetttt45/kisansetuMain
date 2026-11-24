@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Market Price Insight - KisanSetu AI{% endblock %}
+{% block page_heading %}Market Price Insight{% endblock %}
+
+{% block content %}
+<style>
+    .mi-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+    .mi-form { display: flex; gap: 10px; flex-wrap: wrap; }
+    .mi-form input {
+        flex: 1; min-width: 160px; padding: 10px 12px;
+        border: 1px solid #cfd8cf; border-radius: 8px; font-size: 15px;
+    }
+    .mi-form button {
+        padding: 10px 20px; border: none; border-radius: 8px;
+        background: #2e7d32; color: #fff; font-size: 15px; cursor: pointer;
+    }
+    .mi-stats { display: flex; gap: 14px; flex-wrap: wrap; }
+    .mi-stat {
+        flex: 1; min-width: 150px; background: #f1f8f1;
+        border-radius: 12px; padding: 14px;
+    }
+    .mi-stat span { display: block; font-size: 13px; color: #555; }
+    .mi-stat strong { font-size: 22px; color: #1b5e20; }
+    .mi-table-wrap { overflow-x: auto; }
+    .mi-table { width: 100%; border-collapse: collapse; }
+    .mi-table th, .mi-table td {
+        padding: 10px; text-align: left; border-bottom: 1px solid #e3e8e3;
+    }
+    .mi-table th { background: #f1f8f1; }
+    .mi-note { color: #666; font-size: 14px; }
+    .mi-error { color: #c62828; }
+</style>
+
+<p class="mi-note">Mandi prices are in ₹ per quintal (100 kg).</p>
+
+<div class="mi-card">
+    <form class="mi-form" method="get" action="{{ url_for('market_insight') }}">
+        <input type="text" name="commodity" placeholder="Crop (e.g. Wheat)"
+               value="{{ commodity }}" required>
+        <input type="text" name="state" placeholder="State (optional, e.g. Haryana)"
+               value="{{ state }}">
+        <button type="submit">Check Prices</button>
+    </form>
+</div>
+
+{% if error %}
+    <div class="mi-card"><p class="mi-error">{{ error }}</p></div>
+{% endif %}
+
+{% if insight %}
+    <div class="mi-card">
+        <h3>{{ commodity }}{% if state %} in {{ state }}{% endif %}</h3>
+        <p class="mi-note">Data date: {{ insight.date }} | Markets: {{ insight.market_count }}</p>
+
+        <div class="mi-stats">
+            <div class="mi-stat"><span>Average price</span><strong>&#8377;{{ insight.average }}</strong></div>
+            <div class="mi-stat"><span>Lowest</span><strong>&#8377;{{ insight.lowest }}</strong></div>
+            <div class="mi-stat"><span>Highest</span><strong>&#8377;{{ insight.highest }}</strong></div>
+        </div>
+    </div>
+
+    <div class="mi-card">
+        <h4>Top 5 markets (best price)</h4>
+        <div class="mi-table-wrap">
+            <table class="mi-table">
+                <tr>
+                    <th>Market</th>
+                    <th>District</th>
+                    <th>State</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Modal (&#8377;/quintal)</th>
+                </tr>
+                {% for m in insight.best_markets %}
+                <tr>
+                    <td>{{ m.market }}</td>
+                    <td>{{ m.district }}</td>
+                    <td>{{ m.state }}</td>
+                    <td>{{ m.min }}</td>
+                    <td>{{ m.max }}</td>
+                    <td><strong>{{ m.modal }}</strong></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    {% if local %}
+    <div class="mi-card">
+        <h4>On KisanSetu marketplace</h4>
+        <p>
+            Farmers have listed {{ commodity }} at an average of
+            &#8377;{{ local.average }} ({{ local.listings }} listings),
+            in the unit used on the Add Product page.
+        </p>
+    </div>
+    {% endif %}
+{% endif %}
+{% endblock %}
