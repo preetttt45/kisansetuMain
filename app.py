@@ -8,7 +8,6 @@ from market_prices import (
     build_insight,
     marketplace_average,
 )
-
 import math
 
 app = Flask(__name__)
@@ -246,6 +245,55 @@ def crop_recommendation():
         error=error
     )
 
+
+
+
+@app.route("/farmer/crop-demand")
+def crop_demand_prediction():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    if session.get("role") != "farmer":
+        return "Access denied!", 403
+
+    connection = get_db_connection()
+    rows = connection.execute("""
+        SELECT p.crop_name AS crop_name,
+               COALESCE(SUM(o.quantity), 0) AS ordered_quantity,
+               COUNT(o.id) AS order_count,
+               COUNT(DISTINCT o.buyer_id) AS buyer_count,
+               COALESCE((SELECT SUM(p2.quantity) FROM products p2
+                         WHERE LOWER(TRIM(p2.crop_name)) = LOWER(TRIM(p.crop_name))), 0)
+                         AS listed_quantity
+        FROM products p
+        LEFT JOIN orders o ON o.product_id = p.id
+        GROUP BY LOWER(TRIM(p.crop_name))
+        ORDER BY ordered_quantity DESC, order_count DESC
+    """).fetchall()
+    connection.close()
+
+    max_demand = max((float(r["ordered_quantity"] or 0) for r in rows), default=0)
+    crops = []
+    for r in rows:
+        qty = float(r["ordered_quantity"] or 0)
+        index = round(qty / max_demand * 100) if max_demand else 0
+        level = ("No orders yet" if qty <= 0 else
+                 "High" if index >= 70 else "Medium" if index >= 30 else "Low")
+        crops.append({
+            "crop": r["crop_name"], "ordered_quantity": round(qty, 2),
+            "listed_quantity": round(float(r["listed_quantity"] or 0), 2),
+            "order_count": int(r["order_count"] or 0),
+            "buyer_count": int(r["buyer_count"] or 0),
+            "demand_index": index, "level": level
+        })
+    return render_template(
+        "farmer/crop_demand.html", crops=crops,
+        total_ordered=round(sum(c["ordered_quantity"] for c in crops), 2),
+        total_orders=sum(c["order_count"] for c in crops),
+        crop_count=len(crops)
+    )
+
+
+
 @app.route("/farmer/market-insight")
 def market_insight():
 
@@ -273,7 +321,6 @@ def market_insight():
             local = marketplace_average(commodity)
 
         except Exception:
-            # Log the real error in the terminal, show a safe message
             app.logger.exception("Market price lookup failed")
             error = "Could not load market prices right now. Please try again later."
 

@@ -30,6 +30,8 @@
                     <a href="{{ url_for('farmer_orders') }}">🧾 Orders</a>
                     <a href="{{ url_for('crop_recommendation') }}">🌱 Smart Crop Recommendation</a>
                     <a href="{{ url_for('market_insight') }}">📈 Market Insight</a>
+                    <a href="{{ url_for('crop_demand_prediction') }}">📊 Crop Demand Prediction</a>
+
                 {% elif session.get('role') == 'buyer' %}
                     <a href="{{ url_for('buyer_dashboard') }}">🏠 Dashboard</a>
                     <a href="{{ url_for('marketplace') }}">🛒 Marketplace</a>

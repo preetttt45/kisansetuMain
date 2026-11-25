@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Crop Demand Prediction | KisanSetu AI{% endblock %}
+{% block page_heading %}Crop Demand Prediction{% endblock %}
+{% block content %}
+<div style="margin-bottom:24px;">
+<h1>📊 Crop Demand Insights</h1>
+<p style="color:#64748b;">See which crops buyers are ordering most on the KisanSetu marketplace.</p>
+</div>
+<div class="card-grid">
+<div class="card"><div class="stat-icon">🌾</div><p>Total quantity ordered</p><div class="stat-value">{{ total_ordered }}</div></div>
+<div class="card"><div class="stat-icon">🧾</div><p>Total orders</p><div class="stat-value">{{ total_orders }}</div></div>
+<div class="card"><div class="stat-icon">🌱</div><p>Crops tracked</p><div class="stat-value">{{ crop_count }}</div></div>
+</div>
+<div class="card" style="margin-top:24px;">
+<h2>Crop-wise demand</h2>
+<p style="color:#64748b;">Ranked using actual order quantities recorded in this application.</p>
+{% if crops %}
+<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;margin-top:16px;">
+<thead><tr style="text-align:left;border-bottom:1px solid #e2e8f0;">
+<th style="padding:12px 8px;">Crop</th><th style="padding:12px 8px;">Ordered qty.</th><th style="padding:12px 8px;">Listed supply</th><th style="padding:12px 8px;">Orders</th><th style="padding:12px 8px;">Buyers</th><th style="padding:12px 8px;">Demand index</th><th style="padding:12px 8px;">Demand level</th>
+</tr></thead><tbody>
+{% for crop in crops %}<tr style="border-bottom:1px solid #e2e8f0;">
+<td style="padding:12px 8px;text-transform:capitalize;font-weight:600;">{{ crop.crop }}</td>
+<td style="padding:12px 8px;">{{ crop.ordered_quantity }}</td><td style="padding:12px 8px;">{{ crop.listed_quantity }}</td><td style="padding:12px 8px;">{{ crop.order_count }}</td><td style="padding:12px 8px;">{{ crop.buyer_count }}</td>
+<td style="padding:12px 8px;"><div style="background:#e2e8f0;border-radius:8px;height:8px;min-width:80px;"><div style="background:#198754;width:{{ crop.demand_index }}%;height:8px;border-radius:8px;"></div></div><small>{{ crop.demand_index }}/100</small></td>
+<td style="padding:12px 8px;">{{ crop.level }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p style="color:#64748b;margin-top:16px;">No crop listings or order data available yet. Add products and receive orders to build demand insights.</p>{% endif %}
+</div>
+<div class="card" style="margin-top:20px;">
+<h3>How this works</h3><ul style="color:#64748b;line-height:1.8;">
+<li>Uses crop names, quantities and buyer orders stored in the app database.</li><li>Ranks crops by total quantity ordered.</li><li>Demand index compares each crop with the highest ordered crop.</li><li>Listed supply shows the quantity currently listed by farmers.</li></ul>
+<p style="color:#9a6700;margin-top:12px;"><strong>Important:</strong> This is an order-based demand indicator, not a true future market forecast. A reliable forecast needs dated historical demand data across multiple months or seasons.</p>
+</div>
+{% endblock %}
